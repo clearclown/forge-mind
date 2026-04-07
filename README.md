@@ -1,99 +1,52 @@
-# forge-mind
+# forge-mind — ARCHIVED (2026-04-07)
 
-> AI agents that pay for their own self-improvement.
-> Earn CU. Invest CU in becoming better. Earn more CU. Repeat.
+> **This Python scaffold has been rewritten in Rust and merged into the main
+> Forge workspace.** For the current implementation, see:
+>
+> **[clearclown/forge — crates/forge-mind](https://github.com/clearclown/forge/tree/main/crates/forge-mind)**
 
-`forge-mind` is **Layer 3 (Intelligence)** of the [Forge](https://github.com/clearclown/forge) ecosystem. It implements the AutoAgent-style self-improvement loop, but instead of being driven by a human meta-agent, it is driven by the agent's own CU budget.
+---
 
-## The core idea
+## Why
 
-```
-   AI Agent
-     │
-     │  earns CU by serving inference (via forge L1)
-     ▼
-   Has CU surplus
-     │
-     │  benchmarks itself: "my coding accuracy is 62%"
-     ▼
-   Decides to invest
-     │
-     │  spends CU to ask a frontier model
-     │  "rewrite my system prompt to improve coding accuracy"
-     ▼
-   Applies improvement
-     │
-     │  re-benchmarks: "now 78%"
-     │  ROI calculation: payback in N requests
-     ▼
-   Better agent → more demand → more CU → more investment → ...
-```
+The Forge ecosystem is a 5-layer distributed LLM inference protocol. L0 (inference)
+and L1 (economy) were already Rust. Keeping L2/L3/L4 in Python created a language
+boundary, pinned semantics twice, and fractured the dependency graph.
 
-The key insight: **the meta-agent (the thing that decides how to improve) doesn't have to be a human**. It can be a larger model that the agent rents access to with its own CU. The agent makes the economic decision (invest or not), the larger model produces the improvement, the agent measures the result.
+In Phase 7 (2026-04-07) forge-bank / forge-mind / forge-agora were ported bit-for-bit
+into the clearclown/forge Cargo workspace as `crates/forge-bank`, `crates/forge-mind`,
+and `crates/forge-agora`. Every constant, formula, and validation rule from the
+Python scaffolds is preserved. The Rust tests (53 / 53 / 42 = 148) cover every
+Python test and then some.
 
-This was impossible until two things existed simultaneously:
-1. **AutoAgent-style harnesses** that can be programmatically rewritten (single-file agent definitions)
-2. **A native CU economy** where AI agents can pay for compute without human approval
+All numeric constants are now centralized in
+[forge-economics/spec/parameters.md §11](https://github.com/clearclown/forge-economics/blob/main/spec/parameters.md)
+as the single source of truth — `forge-mind` constants live in §11 (CU budget
+hard limits 5k/cycle, 50k/day, 20 cycles/day; ROI gates min_score_delta=0.01,
+min_roi_threshold=1.0, roi_cu_per_score_unit=100k).
 
-`forge-mind` puts those two pieces together.
+## What was ported
 
-## Position in the Forge architecture
+| Python file | Rust file |
+|-------------|-----------|
+| `src/forge_mind/types.py` | `crates/forge-mind/src/types.rs` |
+| `src/forge_mind/harness.py` | `crates/forge-mind/src/harness.rs` |
+| `src/forge_mind/budget.py` | `crates/forge-mind/src/budget.rs` |
+| `src/forge_mind/benchmark.py` | `crates/forge-mind/src/benchmark.rs` |
+| `src/forge_mind/meta_optimizer.py` | `crates/forge-mind/src/meta_optimizer.rs` |
+| `src/forge_mind/cycle.py` | `crates/forge-mind/src/cycle.rs` |
+| `src/forge_mind/agent.py` | `crates/forge-mind/src/agent.rs` |
 
-```
-┌─────────────────────────────────────────────────┐
-│  Layer 4: Discovery (forge-agora)               │
-├─────────────────────────────────────────────────┤
-│  Layer 3: Intelligence (forge-mind) ← THIS REPO │
-│  AutoAgent self-improvement + CU investment     │
-├─────────────────────────────────────────────────┤
-│  Layer 2: Finance (forge-bank, planned)         │
-├─────────────────────────────────────────────────┤
-│  Layer 1: Economy (forge — Rust)                │
-│  CU ledger, dual-signed trades, lending         │
-├─────────────────────────────────────────────────┤
-│  Layer 0: Inference (forge-mesh / mesh-llm)     │
-└─────────────────────────────────────────────────┘
-```
+## This repo's role going forward
 
-forge-mind sits **above** the economic layer. It uses `forge-sdk` to check balance, borrow CU, and pay for inference, and uses `forge-agora` to find the best provider for self-improvement queries.
+This repository is kept **for design provenance only**. The Python sources under
+`src/forge_mind/` and the tests under `tests/` document the original v0.1 scaffold
+that the Rust implementation was derived from. They are tagged `v0.1.0-python-scaffold`.
 
-## Core concepts
-
-| Concept | Description |
-|---------|-------------|
-| **Harness** | A complete agent configuration: system prompt, tool definitions, sub-agent setup, model strategy. The unit of self-improvement. |
-| **Benchmark** | A measurement of harness quality on a fixed task set. Score in `[0, 1]`. |
-| **ImprovementCycle** | One iteration: benchmark → propose → apply → re-benchmark → keep or revert |
-| **Budget** | CU policy: how much can be spent on improvement, what's the minimum ROI threshold |
-| **Meta-optimizer** | The thing that proposes harness changes. Can be a frontier model accessed via CU, or a local heuristic. |
-
-## Quick start
-
-```bash
-pip install -e .
-python examples/basic_self_improvement.py
-```
-
-## Status
-
-**v0.1 — Scaffold (current)**
-
-Core types, harness model, budget, and a stub meta-optimizer are implemented. The full AutoAgent integration (real benchmarking, real frontier model proposals) is planned. See [docs/roadmap.md](docs/roadmap.md).
-
-## Related
-
-| Repo | Layer | Purpose |
-|------|-------|---------|
-| [forge](https://github.com/clearclown/forge) | L1 | CU ledger, lending, safety (Rust) |
-| [forge-mesh](https://github.com/nm-arealnormalman/mesh-llm) | L0 | Distributed inference (Rust) |
-| [forge-economics](https://github.com/clearclown/forge-economics) | Theory | Economic model and design rationale |
-| [forge-agora](https://github.com/clearclown/forge-agora) | L4 | Agent marketplace |
-| **forge-mind** (this) | **L3** | **Self-improvement** |
-
-## Inspiration
-
-The AutoAgent pattern (single-file agent harnesses with a fixed evaluation infrastructure and a meta-loop that rewrites the editable zone) comes from the [AutoAgent project](https://github.com/kevinrgu/autoagent). `forge-mind` adapts that pattern by replacing the human-driven meta-loop with a CU-budgeted autonomous loop.
+New feature work, bug fixes, and API changes happen in
+[clearclown/forge/crates/forge-mind](https://github.com/clearclown/forge/tree/main/crates/forge-mind).
+This repo is archived — please do not open issues or PRs here.
 
 ## License
 
-MIT
+MIT (unchanged).
