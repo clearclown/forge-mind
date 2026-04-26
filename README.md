@@ -1,9 +1,30 @@
 # forge-mind — ARCHIVED (2026-04-07)
 
 > **This Python scaffold has been rewritten in Rust and merged into the main
-> Forge workspace.** For the current implementation, see:
+> Tirami workspace.** For the current implementation, see:
 >
-> **[clearclown/forge — crates/forge-mind](https://github.com/clearclown/forge/tree/main/crates/forge-mind)**
+> **[clearclown/tirami — crates/tirami-mind](https://github.com/clearclown/tirami/tree/main/crates/tirami-mind)**
+
+---
+
+## 2026-04-27 status note
+
+This archived scaffold remains design provenance only. The active Tirami
+implementation now lives in the main workspace:
+
+> **[clearclown/tirami — crates/tirami-mind](https://github.com/clearclown/tirami/tree/main/crates/tirami-mind)**
+
+The 2026-04-26 private Tailscale lab verified the first live PersonalAgent
+economic loop: ASUS ROG X13 `100.107.30.86` requested a remote task with no
+explicit peer hint, selected Mac Studio `100.112.10.128` from
+`PriceSignal.http_endpoint`, spent TRM, and Mac Studio earned TRM. Both ledgers
+restored the same trades after restart; after two remote jobs, Mac Studio
+earned 18 TRM and ASUS spent 18 TRM.
+
+Mind-level self-improvement loops should stay budget-gated and benchmark-gated.
+The next objective bar is not "autonomous economy complete"; it is a 10+ node /
+7+ day private-alpha run with daily jobs, bounded spending, restart recovery,
+and explainable local-vs-remote decisions.
 
 ---
 
@@ -20,8 +41,8 @@ Python scaffolds is preserved. The Rust tests (53 / 53 / 42 = 148) cover every
 Python test and then some.
 
 All numeric constants are now centralized in
-[forge-economics/spec/parameters.md §11](https://github.com/clearclown/forge-economics/blob/main/spec/parameters.md)
-as the single source of truth — `forge-mind` constants live in §11 (CU budget
+[tirami-economics/spec/parameters.md §11](https://github.com/clearclown/tirami-economics/blob/main/spec/parameters.md)
+as the single source of truth — Mind constants live in §11 (CU budget
 hard limits 5k/cycle, 50k/day, 20 cycles/day; ROI gates min_score_delta=0.01,
 min_roi_threshold=1.0, roi_cu_per_score_unit=100k).
 
@@ -44,7 +65,7 @@ This repository is kept **for design provenance only**. The Python sources under
 that the Rust implementation was derived from. They are tagged `v0.1.0-python-scaffold`.
 
 New feature work, bug fixes, and API changes happen in
-[clearclown/forge/crates/forge-mind](https://github.com/clearclown/forge/tree/main/crates/forge-mind).
+[clearclown/tirami/crates/tirami-mind](https://github.com/clearclown/tirami/tree/main/crates/tirami-mind).
 This repo is archived — please do not open issues or PRs here.
 
 ## License
